@@ -18,19 +18,24 @@ const compile = (phrase: string) => {
   return [compiled, storage];
 };
 
-const makeMove = (element, storage, position): [string, number] => {
-  let move = '';
+const makeMove = (
+  element: number,
+  storage: number[],
+  position: number
+): [string, number] => {
   const movements = possibleMovements(element, storage, position);
   const shortestMove = movements.reduce(shorter);
-  move += shortestMove;
-  move += '.';
-  return [move, movements.indexOf(shortestMove)];
+  return [shortestMove + '.', movements.indexOf(shortestMove)];
 };
 
 const shorter = (left: string, right: string) =>
   left.length <= right.length ? left : right;
 
-const possibleMovements = (element, storage: any[], position) => {
+const possibleMovements = (
+  element: number,
+  storage: number[],
+  position: number
+) => {
   return storage.map((value, index) => {
     let newMovement =
       index > position
@@ -59,4 +64,61 @@ const getAlphabetPosition = (element: number) => {
   return element === 32 ? 0 : element - CHAR_CODE_START_BASE;
 };
 
-export { compile, walkToLetter };
+const findLoops = (phrase: string) => {};
+
+function buildPatternTable(word) {
+  const patternTable = [0];
+  let prefixIndex = 0;
+  let suffixIndex = 1;
+
+  while (suffixIndex < word.length) {
+    if (word[prefixIndex] === word[suffixIndex]) {
+      patternTable[suffixIndex] = prefixIndex + 1;
+      suffixIndex += 1;
+      prefixIndex += 1;
+    } else if (prefixIndex === 0) {
+      patternTable[suffixIndex] = 0;
+      suffixIndex += 1;
+    } else {
+      prefixIndex = patternTable[prefixIndex - 1];
+    }
+  }
+
+  return patternTable;
+}
+
+/**
+ * @param {string} text
+ * @param {string} word
+ * @return {number}
+ */
+export default function knuthMorrisPratt(text, word) {
+  if (word.length === 0) {
+    return 0;
+  }
+
+  let textIndex = 0;
+  let wordIndex = 0;
+
+  const patternTable = buildPatternTable(word);
+
+  while (textIndex < text.length) {
+    if (text[textIndex] === word[wordIndex]) {
+      // We've found a match.
+      if (wordIndex === word.length - 1) {
+        return textIndex - word.length + 1;
+      }
+      wordIndex += 1;
+      textIndex += 1;
+    } else if (wordIndex > 0) {
+      wordIndex = patternTable[wordIndex - 1];
+    } else {
+      wordIndex = 0;
+      textIndex += 1;
+    }
+  }
+
+  return -1;
+}
+
+export { compile, walkToLetter, kpm };
