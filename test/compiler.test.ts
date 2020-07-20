@@ -1,11 +1,9 @@
-import { CHAR_CODE_START_BASE } from './../src/index';
+import { CHAR_CODE_START_BASE, buildPatternTable } from './../src/index';
 import { compile, walkToLetter } from '../src';
 
 describe('compiler test', () => {
   it('should print compiler', () => {
     expect(compile('AZ')[0]).toEqual('+.--.');
-    // expect(compile('AAZ')[0]).toEqual('+..>-.');
-    expect(compile('AAAGXSBSSASCCZ')[0]).toEqual('+...>-.');
     expect(compile(' ')[0]).toEqual('.');
   });
 
