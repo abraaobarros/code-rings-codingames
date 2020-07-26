@@ -45,6 +45,7 @@ const possibleMovements = (
     const [forward, backward] = walkToLetter(value, element);
     newMovement +=
       forward < backward ? '+'.repeat(forward) : '-'.repeat(backward);
+
     return newMovement;
   });
 };
@@ -64,4 +65,56 @@ const getAlphabetPosition = (element: number) => {
   return element === 32 ? 0 : element - CHAR_CODE_START_BASE;
 };
 
-export { compile, walkToLetter };
+const getLoopSequence = (phrase: string): [number, number] => {
+  let start: number = 0;
+  let end: number = 0;
+  let letter: string = '.';
+
+  let maxS = 0;
+  let maxE = 0;
+
+  for (let i = 0; i < phrase.length; i++) {
+    if (phrase[i] === letter) {
+      end = i;
+    } else {
+      start = i;
+      end = i;
+    }
+    if (maxS - maxE < end - start) {
+      maxS = start;
+      maxE = end;
+    }
+  }
+  console.log(phrase, start, end, maxS, maxE);
+  return [maxS, maxE];
+};
+
+const getExpressionForLoop = (source: number, count: number): string => {
+  const [forward, backward] = walkToLetter(source, count);
+  const newMovement =
+    Math.abs(forward) < Math.abs(backward)
+      ? '+'.repeat(Math.abs(forward))
+      : '-'.repeat(Math.abs(backward));
+  return `>${newMovement}[<.>-]`;
+};
+
+const getAlternativeWithLoop = (phrase: string, source: number) => {
+  let newP = phrase;
+  let start: number = 0;
+  let end = 0;
+
+  [start, end] = getLoopSequence(newP);
+  const loop = phrase.slice(start + 1, end + 1);
+  console.log(loop);
+  newP = newP.replace(loop, getExpressionForLoop(source, end - start));
+  return newP;
+};
+
+export {
+  compile,
+  getAlphabetPosition,
+  walkToLetter,
+  getLoopSequence,
+  getExpressionForLoop,
+  getAlternativeWithLoop,
+};
